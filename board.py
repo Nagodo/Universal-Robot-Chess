@@ -12,14 +12,14 @@ class Board:
     def LoadFEN(self, fen):
         #Loop through each character in the FEN string
         x = 0
-        y = 0
+        y = 7
         for i in range(len(fen)):
             #Hvis tegnet er et mellemrum så stopper vi
             if fen[i] == " ":
                 break
 
             if fen[i] == "/":
-                y += 1
+                y -= 1
                 x = 0
                 continue
 
@@ -37,5 +37,14 @@ class Board:
             elif fen[i] in "RNBQKP":
                 self.board[y][x] = [1, fen[i].lower()]
                 x += 1
+
+        #Print the board
+        for i in range(8):
+            for j in range(8):
+                print(self.board[i][j], end=" ")
+            print()
+            
+
+            
 
     
