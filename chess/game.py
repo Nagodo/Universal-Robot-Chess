@@ -40,14 +40,7 @@ class Game:
             screen.blit(text, ((i * 100) + boardOffest[0] + 40, 850))
 
     def DrawNotation(self):
-        #Draw the notation on the right side of the screen
-        #Draw square for the notation
         pygame.draw.rect(screen, (100, 100, 100), (900, 50, 250, 800), 5)
-
-        
-
-
-        #Tegn brikkerne med deres farve ved brug af spritesheet
         for i in range(8):
             for j in range(8):
                 if self.board.board[i][j] != [0, ""]:
@@ -71,7 +64,7 @@ class Game:
                         s += "king"
 
                     sprite = pygame.image.load("./sprites/" + s + ".png")
-                    #Scale the sprite to 100x100
+                    
                     sprite = pygame.transform.scale(sprite, (100, 100))
                     screen.blit(sprite, ((j * 100) + boardOffest[0], (i * 100) + boardOffest[1]))
 

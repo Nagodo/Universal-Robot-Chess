@@ -1,0 +1,11 @@
+<configuration>
+  <output>
+    <recipe name="joint_data" type="mixed">
+      <field name="time" type="double"/>
+      <field name="actual_q" type="double[6]"/>
+      <field name="actual_qd" type="double[6]"/>
+      <field name="actual_TCP_pose" type="double[6]"/>
+      <field name="actual_TCP_speed" type="double"/>
+    </recipe>
+  </output>
+</configuration>
