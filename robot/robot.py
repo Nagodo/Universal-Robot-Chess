@@ -12,17 +12,10 @@ conf = rtde_config.ConfigFile(config_filename)
 class Robot:
     def __init__(self):
         self.con = rtde.RTDE(ROBOT_HOST, ROBOT_PORT)
+        self.connection_state = 0
     
     def connect(self):
-        connection_state = self.con.connect()
-
-        while not connection_state:
-            print("Waiting for connection")
-            connection_state = self.con.connect()
-            time.sleep(0.5)
-
-        print("Connected to robot")
-
+        self.connection_state = self.con.connect()
 
     def MoveToPos(self, p1, p2):
-        
+        pass
