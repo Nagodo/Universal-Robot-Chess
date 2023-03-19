@@ -1,10 +1,23 @@
 import time
-from robot import Robot
+from threading import Thread
+from chess.flask_app import WebInterface
+from chess.board import Board
+from robot.robot import Robot
 
 robot = Robot()
+chess = Board()
 
-while robot.connection_state == 0:
-    robot.connect()
-    time.sleep(0.5)
+webInterface = WebInterface()
+webThread = Thread(target=webInterface.app.run)
 
-print("Connected to robot")
+webInterface.setChessData(chess.board)
+
+# while robot.connection_state == 0:
+#     robot.connect()
+#     time.sleep(0.5)
+
+# print("Connected to robot")
+
+if __name__ == "__main__":
+    webThread.start()
+   

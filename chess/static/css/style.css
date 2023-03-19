@@ -1,0 +1,49 @@
+.content {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
+    height: 100%;
+
+
+
+}
+
+.chessboard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    width: 87vh;
+    height: 87vh;
+
+    background-color: #f0d9b5;
+}
+
+.chessboard .square {
+    position: relative;
+    width: 12.5%;
+    height: 12.5%;
+
+    float: left;
+
+}
+
+.chessboard .square img {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    
+}
+
+.chessboard .square.white {
+    background-image: url("../img/wsquare.png");
+}
+
+.chessboard .square.black {
+    background-image: url("../img/bsquare.png");
+}

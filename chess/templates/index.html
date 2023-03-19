@@ -1,0 +1,33 @@
+<html>
+    <head>
+        <title>Chess</title>
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    </head>
+    <body>
+        <div class="content">
+            <div class="chessboard">
+                {% for y in board_data %}
+                    {% for x in y %}
+                        {% if x[2] == 0 %}
+                            <div class="square white">
+                                {% if x[1] != "" %}
+                                    <img src="{{ url_for('static', filename='img/' + x[3] + '.png') }}" />
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="square black">
+                                {% if x[1] != "" %}
+                                    <img src="{{ url_for('static', filename='img/' + x[3] + '.png') }}" />
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+
+                {% endfor %}
+                
+            </div>
+        </div>
+    </body>
+</html>
