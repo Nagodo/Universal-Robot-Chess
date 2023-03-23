@@ -65,11 +65,7 @@ class Board:
                 self.board[y][x][1] = fen[i].lower()
                 x += 1
 
-        #Print the board
-        for i in range(8):
-            for j in range(8):
-                print(self.board[i][j], end=" ")
-           
+        
 
             
 

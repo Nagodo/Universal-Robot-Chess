@@ -1,5 +1,6 @@
 import cv2
 from threading import Thread
+import time
 
 class Vision:
     def __init__(self):
@@ -14,16 +15,18 @@ class Vision:
     def findChessboard(self):
         pass
 
+    def startVision(self):
+        while True:
+            ret, frame = self.cap.read()
 
-def startVision():
-    vision = Vision()
-    while True:
-        ret, frame = vision.cap.read()
+            cv2.imshow('frame', frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    vision.cap.release()
-    cv2.destroyAllWindows()
+            time.sleep(2)
+
+           
+
+        self.cap.release()
+        cv2.destroyAllWindows()
 
 
-visionThread = Thread(target=startVision)
+

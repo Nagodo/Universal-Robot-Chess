@@ -167,10 +167,17 @@ class DataConfig(object):
     @staticmethod
     def unpack_recipe(buf):
         rmd = DataConfig()
+
+        d_buf = buf.decode("utf-8")[1:]
+        print(d_buf)
         rmd.id = struct.unpack_from(">B", buf)[0]
-        rmd.types = buf.decode("utf-8")[1:].split(",")
+     
+        rmd.types = d_buf.split(",")
+        
         rmd.fmt = ">B"
         for i in rmd.types:
+            if i == "":
+                continue
             if i == "INT32":
                 rmd.fmt += "i"
             elif i == "UINT32":

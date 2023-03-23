@@ -27,10 +27,7 @@ import select
 import sys
 import logging
 
-if sys.version_info[0] < 3:
-    import serialize
-else:
-    from rtde import serialize
+from robot.rtde.serialize import *
 
 DEFAULT_TIMEOUT = 1.0
 
@@ -156,7 +153,7 @@ class RTDE(object):
             return None
         result.names = variables
         self.__input_config[result.id] = result
-        return serialize.DataObject.create_empty(variables, result.id)
+        return DataObject.create_empty(variables, result.id)
 
     def send_output_setup(self, variables, types=[], frequency=125):
         cmd = Command.RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS
@@ -245,7 +242,7 @@ class RTDE(object):
         return data
 
     def send_message(
-        self, message, source="Python Client", type=serialize.Message.INFO_MESSAGE
+        self, message, source="Python Client", type=Message.INFO_MESSAGE
     ):
         cmd = Command.RTDE_TEXT_MESSAGE
         fmt = ">B%dsB%dsB" % (len(message), len(source))
@@ -310,7 +307,7 @@ class RTDE(object):
             # unpack_from requires a buffer of at least 3 bytes
             while len(self.__buf) >= 3:
                 # Attempts to extract a packet
-                packet_header = serialize.ControlHeader.unpack(self.__buf)
+                packet_header = ControlHeader.unpack(self.__buf)
 
                 if len(self.__buf) >= packet_header.size:
                     packet, self.__buf = (
@@ -319,7 +316,7 @@ class RTDE(object):
                     )
                     data = self.__on_packet(packet_header.command, packet)
                     if len(self.__buf) >= 3 and command == Command.RTDE_DATA_PACKAGE:
-                        next_packet_header = serialize.ControlHeader.unpack(self.__buf)
+                        next_packet_header = ControlHeader.unpack(self.__buf)
                         if next_packet_header.command == command:
                             _log.debug("skipping package(1)")
                             self.__skipped_package_count += 1
@@ -362,7 +359,7 @@ class RTDE(object):
         # unpack_from requires a buffer of at least 3 bytes
         while len(self.__buf) >= 3:
             # Attempts to extract a packet
-            packet_header = serialize.ControlHeader.unpack(self.__buf)
+            packet_header = ControlHeader.unpack(self.__buf)
 
             if len(self.__buf) >= packet_header.size:
                 packet, self.__buf = (
@@ -388,14 +385,14 @@ class RTDE(object):
         if len(payload) != 1:
             _log.error("RTDE_REQUEST_PROTOCOL_VERSION: Wrong payload size")
             return None
-        result = serialize.ReturnValue.unpack(payload)
+        result = ReturnValue.unpack(payload)
         return result.success
 
     def __unpack_urcontrol_version_package(self, payload):
         if len(payload) != 16:
             _log.error("RTDE_GET_URCONTROL_VERSION: Wrong payload size")
             return None
-        version = serialize.ControlVersion.unpack(payload)
+        version = ControlVersion.unpack(payload)
         return version
 
     def __unpack_text_message(self, payload):
@@ -403,46 +400,46 @@ class RTDE(object):
             _log.error("RTDE_TEXT_MESSAGE: No payload")
             return None
         if self.__protocolVersion == RTDE_PROTOCOL_VERSION_1:
-            msg = serialize.MessageV1.unpack(payload)
+            msg = MessageV1.unpack(payload)
         else:
-            msg = serialize.Message.unpack(payload)
+            msg = Message.unpack(payload)
 
         if (
-            msg.level == serialize.Message.EXCEPTION_MESSAGE
-            or msg.level == serialize.Message.ERROR_MESSAGE
+            msg.level == Message.EXCEPTION_MESSAGE
+            or msg.level == Message.ERROR_MESSAGE
         ):
             _log.error(msg.source + ": " + msg.message)
-        elif msg.level == serialize.Message.WARNING_MESSAGE:
+        elif msg.level == Message.WARNING_MESSAGE:
             _log.warning(msg.source + ": " + msg.message)
-        elif msg.level == serialize.Message.INFO_MESSAGE:
+        elif msg.level == Message.INFO_MESSAGE:
             _log.info(msg.source + ": " + msg.message)
 
     def __unpack_setup_outputs_package(self, payload):
         if len(payload) < 1:
             _log.error("RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS: No payload")
             return None
-        output_config = serialize.DataConfig.unpack_recipe(payload)
+        output_config = DataConfig.unpack_recipe(payload)
         return output_config
 
     def __unpack_setup_inputs_package(self, payload):
         if len(payload) < 1:
             _log.error("RTDE_CONTROL_PACKAGE_SETUP_INPUTS: No payload")
             return None
-        input_config = serialize.DataConfig.unpack_recipe(payload)
+        input_config = DataConfig.unpack_recipe(payload)
         return input_config
 
     def __unpack_start_package(self, payload):
         if len(payload) != 1:
             _log.error("RTDE_CONTROL_PACKAGE_START: Wrong payload size")
             return None
-        result = serialize.ReturnValue.unpack(payload)
+        result = ReturnValue.unpack(payload)
         return result.success
 
     def __unpack_pause_package(self, payload):
         if len(payload) != 1:
             _log.error("RTDE_CONTROL_PACKAGE_PAUSE: Wrong payload size")
             return None
-        result = serialize.ReturnValue.unpack(payload)
+        result = ReturnValue.unpack(payload)
         return result.success
 
     def __unpack_data_package(self, payload, output_config):
