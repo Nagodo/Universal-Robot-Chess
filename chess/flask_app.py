@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request
+import time
+import json
 
 class WebInterface:
     def __init__(self):    
@@ -11,8 +13,17 @@ class WebInterface:
         
         @self.app.route("/getchessposition", methods=['POST']) 
         def get_chess_position():
-            command = request.form['command']
-            return "Hello World"
+            
+            #ChessData to JSON
+            jsonData = json.dumps(self.chessData)
+
+
+            return jsonData
  
+    def RunServer(self):
+        self.app.run()
+        
+
+
     def setChessData(self, data):
         self.chessData = data
