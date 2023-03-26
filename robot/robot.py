@@ -98,7 +98,6 @@ class Robot:
         self.con.send(send)
 
 
-    def MoveToPos(self, p1):
-        self.go_to_pos = p1
-        self.should_move = True
+    def Move(self, move):
+        pass
         

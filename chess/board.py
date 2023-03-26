@@ -85,38 +85,9 @@ class Board:
         self.ChangeTurn()
 
     def ConvertToIndex(self, letter):
-        if letter == "a":
-            return 0
-        elif letter == "b":
-            return 1
-        elif letter == "c":
-            return 2
-        elif letter == "d":
-            return 3
-        elif letter == "e":
-            return 4
-        elif letter == "f":
-            return 5
-        elif letter == "g":
-            return 6
-        elif letter == "h":
-            return 7
-        if letter == "1":
-            return 7
-        elif letter == "2":
-            return 6
-        elif letter == "3":
-            return 5
-        elif letter == "4":
-            return 4
-        elif letter == "5":
-            return 3
-        elif letter == "6":
-            return 2
-        elif letter == "7":
-            return 1
-        elif letter == "8":
-            return 0
+        l_dict = {"a": 0, "b": 1, "c": 2, "d": 3, "e": 4, "f": 5, "g": 6, "h": 7, "1": 7, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 1, "8": 0}
+        return l_dict[letter]
+    
 
     def ChangeTurn(self):
         if self.turn == "w":

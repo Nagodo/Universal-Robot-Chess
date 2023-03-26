@@ -6,7 +6,7 @@ function GetChessPosition() {
             command: "getchessposition"
         },
     }).then(function (data) {
-        console.log(data);
+        document.getElementById("content").innerHTML = data;
     });
 }
 

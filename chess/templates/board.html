@@ -1,0 +1,20 @@
+<div class="chessboard">
+    {% for y in board_data %}
+        {% for x in y %}
+            {% if x[2] == 0 %}
+                <div class="square white">
+                    {% if x[1] != "" %}
+                        <img src="{{ url_for('static', filename='img/' + x[3] + '.png') }}" />
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="square black">
+                    {% if x[1] != "" %}
+                        <img src="{{ url_for('static', filename='img/' + x[3] + '.png') }}" />
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+    {% endfor %}
+</div>

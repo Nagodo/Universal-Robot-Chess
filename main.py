@@ -5,6 +5,11 @@ from vision import Vision
 from chess.board import Board
 from robot.robot import Robot
 from chess.engine import Engine
+import logging
+
+#Fjerner POST request fra loggen
+log = logging.getLogger('werkzeug')
+log.disabled = True
 
 # robot = Robot()
 # robot.connect()
@@ -17,7 +22,7 @@ from chess.engine import Engine
 chess = Board()
 engine = Engine()
 
-engine.set_elo(2800)
+engine.set_elo(3000)
 
 webInterface = WebInterface()
 webThread = Thread(target=webInterface.RunServer)
@@ -34,11 +39,13 @@ visionThread.start()
 # robotThread.start()
 
 while True:
+    #Find næste robot træk hvis det ikke er spillerens tur
     if chess.turn != chess.playercolor:
         engine.set_fen(chess.GetFEN())
         move = engine.get_best_move()
         print(move)
         chess.Move(move)
+        #robot.Move(move)
         webInterface.setChessData(chess.board)
     
     time.sleep(0.1)
