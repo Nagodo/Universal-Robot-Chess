@@ -169,7 +169,6 @@ class DataConfig(object):
         rmd = DataConfig()
 
         d_buf = buf.decode("utf-8")[1:]
-        print(d_buf)
         rmd.id = struct.unpack_from(">B", buf)[0]
      
         rmd.types = d_buf.split(",")

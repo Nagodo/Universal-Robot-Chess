@@ -28,5 +28,7 @@ class Vision:
         self.cap.release()
         cv2.destroyAllWindows()
 
+    
+
 
 

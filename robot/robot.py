@@ -14,7 +14,9 @@ class Robot:
     def __init__(self):
         self.con = rtde.RTDE(ROBOT_HOST, ROBOT_PORT)
         self.connection_state = 0
-        self.go_to_pos = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        self.go_to_pos = [-0.513, -0.143, 0.125, 0.0, 0.0, 0.0]
+        self.should_move = True
+        self.registers = []
 
         pass
     
@@ -42,9 +44,7 @@ class Robot:
         self.setp.input_double_register_0 = 0
         self.setp.input_double_register_1 = 0
         self.setp.input_double_register_2 = 0
-        self.setp.input_double_register_3 = 0
-        self.setp.input_double_register_4 = 0
-        self.setp.input_double_register_5 = 0
+
 
         self.watchdog.input_int_register_0 = 0
 
@@ -59,23 +59,18 @@ class Robot:
             if self.connection_state != 0:
                 state = self.con.receive()
 
-                
-
                 if state is None:
                     print("Connection closed")
                     break
 
                 #Tjek om robottet er fremme og stop hvis det er
                 if self.should_move:
-                    current_pos = state.actual_tcp_pose
-                    if abs(current_pos[0] - self.go_to_pos[0]) < 0.01 and abs(current_pos[1] - self.go_to_pos[1]) < 0.01 and abs(current_pos[2] - self.go_to_pos[2]) < 0.01:
+                    current_pos = state.actual_TCP_pose
+
+                    if abs(current_pos[0] - self.go_to_pos[0]) < 0.015 and abs(current_pos[1] - self.go_to_pos[1]) < 0.015 and abs(current_pos[2] - self.go_to_pos[2]) < 0.015:
                         self.should_move = False
-
-
-                if state.output_int_register_0 != 0:
                 
-                    print("Sending")
-                    self.UpdateRegister()
+                self.UpdateRegister()
                 
 
                 self.con.send(self.watchdog)
@@ -85,8 +80,8 @@ class Robot:
 
     def UpdateRegister(self):
        
-        send = None
-        for i in range(0, 6):
+        send = self.setp
+        for i in range(0, 3):
             send.__dict__["input_double_register_" + str(i)] = self.go_to_pos[i]
 
         s_move = 0
