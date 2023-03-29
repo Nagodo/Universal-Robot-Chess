@@ -11,6 +11,14 @@ import logging
 log = logging.getLogger('werkzeug')
 log.disabled = True
 
+
+def WaitForActionDone():
+    time.sleep(1)
+    while robot.action_done == 0:
+        
+        time.sleep(0.1)
+    print("Action done")
+
 robot = Robot()
 robot.connect()
 
@@ -38,6 +46,37 @@ visionThread.start()
 robotThread = Thread(target = robot.ControlLoop)
 robotThread.start()
 
+# robot.MoveToBase()
+
+# WaitForActionDone()
+
+# robot.GrabPiece("a1")
+
+# WaitForActionDone()
+
+# robot.MoveToCapture()
+# WaitForActionDone()
+
+# robot.GrabPiece("b1")
+# WaitForActionDone()
+
+# robot.MoveToCapture()
+# WaitForActionDone()
+
+# robot.GrabPiece("h7")
+# WaitForActionDone()
+
+# robot.MoveToCapture(1)
+# WaitForActionDone()
+
+# robot.GrabPiece("d7")
+# WaitForActionDone()
+
+# robot.MoveToSquare("d5")
+# WaitForActionDone()
+
+robot.current_action = 0
+
 while True:
     #Find næste robot træk hvis det ikke er spillerens tur
     # if chess.turn != chess.playercolor:
@@ -51,3 +90,4 @@ while True:
     
     
     time.sleep(0.1)
+
