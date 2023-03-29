@@ -4,7 +4,7 @@ import time
 
 class Vision:
     def __init__(self):
-        self.cap = cv2.VideoCapture(0)
+        self.cap = cv2.VideoCapture(2)
         self.foundChessboard = False
         self.showVideo = True
 
