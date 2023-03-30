@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-from turbo_flask import Turbo
 import time
 import json
 
@@ -7,8 +6,7 @@ import json
 class WebInterface:
     def __init__(self):    
         self.app = Flask(__name__)
-        self.turbo = Turbo()
-        self.turbo.init_app(self.app)
+
         self.chessData = []
         
         @self.app.route("/")

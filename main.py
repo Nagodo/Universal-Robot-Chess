@@ -5,6 +5,7 @@ from vision import Vision
 from chess.board import Board
 from robot.robot import Robot
 from chess.engine import Engine
+from CONFIG import *
 import logging
 
 #Fjerner POST request fra loggen
@@ -19,13 +20,14 @@ def WaitForActionDone():
         time.sleep(0.1)
     print("Action done")
 
-robot = Robot()
-robot.connect()
+if not DISABLEROBOT:
+    robot = Robot()
+    robot.connect()
 
-if robot.connection_state != 0:
-    robot.SetRecipes()
-    robot.SetDefaultRegister()
-    robot.StartDataSync()
+    if robot.connection_state != 0:
+        robot.SetRecipes()
+        robot.SetDefaultRegister()
+        robot.StartDataSync()
 
 chess = Board()
 engine = Engine()
@@ -42,9 +44,9 @@ vision = Vision()
 visionThread = Thread(target=vision.startVision)
 visionThread.start()
 
-
-robotThread = Thread(target = robot.ControlLoop)
-robotThread.start()
+if not DISABLEROBOT:
+    robotThread = Thread(target = robot.ControlLoop)
+    robotThread.start()
 
 # robot.MoveToBase()
 # WaitForActionDone()
@@ -69,7 +71,7 @@ vision.UpdateOldFrame()
 # robot.MoveToSquare("d5")
 # WaitForActionDone()
 
-robot.current_action = 0
+#robot.current_action = 0
 
 while True:
     #Find næste robot træk hvis det ikke er spillerens tur
