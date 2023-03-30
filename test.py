@@ -24,8 +24,6 @@ second_largest_contour = contours[1]
 cv2.drawContours(image, [second_largest_contour], -1, (0, 255, 0), 3)
 cv2.imshow('Contour', image)
 
-cv2.drawContours(image, contours, -1, (0, 255, 0), 3)
-cv2.imshow('Contours', image)
 
 contour_coords = second_largest_contour[:, 0, :]
 contour_x_coords = contour_coords[:, 0]

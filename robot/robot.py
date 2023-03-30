@@ -23,7 +23,6 @@ class Robot:
         self.con = rtde.RTDE(ROBOT_HOST, ROBOT_PORT)
         self.connection_state = 0
         self.go_to_pos = [0.0, 0.0, 0.0]
-        self.second_go_to_pos = [0.0, 0.0, 0.0]
         self.current_action = 0
         self.action_done = 0
         
@@ -56,9 +55,6 @@ class Robot:
         self.setp.input_double_register_0 = 0
         self.setp.input_double_register_1 = 0
         self.setp.input_double_register_2 = 0
-        self.setp.input_double_register_3 = 0
-        self.setp.input_double_register_4 = 0
-        self.setp.input_double_register_5 = 0
 
         self.watchdog.input_int_register_0 = 0
 
@@ -92,17 +88,10 @@ class Robot:
         for i in range(0, 3):
             send.__dict__["input_double_register_" + str(i)] = self.go_to_pos[i]
         
-        for i in range(0, 3):
-            send.__dict__["input_double_register_" + str(i + 3)] = self.second_go_to_pos[i]
-
+        
         send.__dict__["input_int_register_1"] = self.current_action
 
         self.con.send(send)
-
-
-    def Move(self, move):
-
-        pass
 
     def GrabPiece(self, square):
         l = square[0]

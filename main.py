@@ -47,15 +47,9 @@ robotThread = Thread(target = robot.ControlLoop)
 robotThread.start()
 
 # robot.MoveToBase()
-
 # WaitForActionDone()
+vision.UpdateOldFrame()
 
-# robot.GrabPiece("a1")
-
-# WaitForActionDone()
-
-# robot.MoveToCapture()
-# WaitForActionDone()
 
 # robot.GrabPiece("b1")
 # WaitForActionDone()
@@ -84,7 +78,6 @@ while True:
     #     move = engine.get_best_move()
     #     print(move)
     #     chess.Move(move)
-    #     robot.Move(move)
     #     webInterface.setChessData(chess.board)
 
     
