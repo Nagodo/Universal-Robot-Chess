@@ -7,10 +7,11 @@ img2 = cv2.imread('img2.png')
 
 def find_green_areas(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    lower_green = np.array([50, 50, 50])
-    upper_green = np.array([70, 255, 255])
-    mask = cv2.inRange(hsv, lower_green, upper_green)
-    res = cv2.bitwise_and(img1, img1, mask=mask)
+    
+    lower_green = np.array([50, 0, 50])
+    upper_green = np.array([100, 255, 100])
+    mask = cv2.inRange(img, lower_green, upper_green)
+    res = cv2.bitwise_and(img, img, mask=mask)
     return res
 
 
@@ -22,7 +23,8 @@ cv2.imshow("a", green1)
 
 def get_contours(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    thresh = cv2.threshold(gray, 100, 200, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+    cv2.imshow("thresh", thresh)
     contours, __ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
@@ -66,7 +68,7 @@ for i in range(len(c1_coords)):
         dist_x = abs(c1_coords[i][0] - c2_coords[j][0])
         dist_y = abs(c1_coords[i][1] - c2_coords[j][1])
 
-        if dist_x < 3.0 and dist_y < 3.0:
+        if dist_x < 4.0 and dist_y < 4.0:
             found_close = True
             i += 1
 

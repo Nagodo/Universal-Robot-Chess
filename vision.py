@@ -14,95 +14,81 @@ class Vision:
         self.oldframe = None
         self.newframe = None
 
-    def set_chessboard_coords(self):
-        # gray = cv2.cvtColor(self.oldframe, cv2.COLOR_BGR2GRAY)
-        
-        # _, thresh = cv2.threshold(gray, 0, 250, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-        # contours, __ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        # contours = sorted(contours, key=cv2.contourArea, reverse=True)
-        
-        # second_largest_contour = contours[1]
-
-        # contour_coords = second_largest_contour[:, 0, :]
-        # contour_x_coords = contour_coords[:, 0]
-        # contour_y_coords = contour_coords[:, 1]
-
-        min_x = VISION_CHESSBOARD[0][0]
-        max_x = VISION_CHESSBOARD[0][1]
-        min_y = VISION_CHESSBOARD[1][0]
-        max_y = VISION_CHESSBOARD[1][1]
-
-       
-        self.chessboard_coords = (min_x, max_x, min_y, max_y)
-
-        #Tegner en firkant rundt om brættet
-        # cv2.rectangle(self.oldframe, (int(min_x), int(min_y)), (int(max_x), int(max_y)), (0, 255, 0), 2)
 
     def checkForUpdates(self):
         print("Checking for updates")
         if self.oldframe is not None:
-            
-            # #Get the size of each square
-            # square_width = (self.chessboard_coords[1] - self.chessboard_coords[0]) / 8
-            # square_height = (self.chessboard_coords[3] - self.chessboard_coords[2]) / 8
-
-            # #Loop through each squar
-            # _t = False
-            # for x in range(0, 8):
-            #     for y in range(0, 8):
-            #         #Get the coordinates of the square
-            #         square_x = self.chessboard_coords[0] + (square_width * x)
-            #         square_y = self.chessboard_coords[2] + (square_height * y)
-
-                
-            #         #Get average color of the square
-            #         from_square_x = int(square_x + VISION_SQUARE_OFFSET)
-            #         from_square_y = int(square_y + VISION_SQUARE_OFFSET)
-            #         to_square_x = int(square_x + square_width - VISION_SQUARE_OFFSET)
-            #         to_square_y = int(square_y + square_height - VISION_SQUARE_OFFSET)
-
-            #         old_square_color = self.get_square_color(self.oldframe, from_square_x, from_square_y, to_square_x, to_square_y)
-            #         new_square_color = self.get_square_color(self.newframe, from_square_x, from_square_y, to_square_x, to_square_y)
-
-            #         if not _t:
-            #             cv2.imshow("Square1", self.oldframe[from_square_y:to_square_y, from_square_x:to_square_x])
-            #             cv2.imshow("Square2", self.newframe[from_square_y:to_square_y, from_square_x:to_square_x])
-
-            #             _t = True
-
-            #         #Check if the color has changed
-
-            #         if self.GetDifference(old_square_color, new_square_color):
-            #             print("Difference found")
-            #             print("Square: ", self.index_to_notation(x, y))
-            #             print(old_square_color, new_square_color)
                     
-          
-            old_green = cv2.cvtColor(self.oldframe, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(old_green, (36, VISION_MASK_VALUE, VISION_MASK_VALUE), (70, 255,255))
-            imask = mask>0
-            old_green = np.zeros_like(self.oldframe, np.uint8)
-            old_green[imask] = self.oldframe[imask]
+            def find_green_areas(img):
+                hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+                lower_green = np.array([50, 50, 50])
+                upper_green = np.array([80, 255, 255])
+                mask = cv2.inRange(hsv, lower_green, upper_green)
+                res = cv2.bitwise_and(img, img, mask=mask)
+                return res
 
-            new_green = cv2.cvtColor(self.newframe, cv2.COLOR_BGR2HSV)
-            mask = cv2.inRange(new_green, (36, VISION_MASK_VALUE, VISION_MASK_VALUE), (70, 255,255))
-            imask = mask>0
-            new_green = np.zeros_like(self.newframe, np.uint8)
-            new_green[imask] = self.newframe[imask]
 
-            cv2.imshow("Old", old_green)
-            cv2.imshow("New", new_green)
-          
-            p_changed = []
-            for x in range(0, new_green.shape[0]):
-                for y in range(0, new_green.shape[1]):
-                    old_color = old_green[x][y]
-                    new_color = new_green[x][y]
+            green1 = find_green_areas(self.oldframe)
+            green2 = find_green_areas(self.newframe)
 
-                    is_diff = self.GetDifference(old_color, new_color)
-                    if is_diff and self.inside_chessboard(x, y):
-                        self.oldframe[x][y] = (255, 0, 0)
+            cv2.imshow("green1", green1)
+            cv2.imshow("green2", green2)
+            
+            def get_contours(img):
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
+                contours, __ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+                return contours
+
+
+            def get_valid_contours(contours):
+                valid_contours = []
+                for c in contours:
+                    area = cv2.contourArea(c)
+                    if area > 8 and 100 > area:
+                        valid_contours.append(c)
+                return valid_contours
+
+            c1 = get_contours(green1)
+            c2 = get_contours(green2)
+
+            c1 = get_valid_contours(c1)
+            c2 = get_valid_contours(c2)
+
+            cv2.drawContours(self.oldframe, c1, -1, (0, 255, 0), 2)
+            cv2.drawContours(self.newframe, c2, -1, (0, 255, 0), 2)
+
+            c1_coords = []
+            c2_coords = []
+            for c in c1:
+                coord = cv2.boundingRect(c) 
+                c1_coords.append((coord[0], coord[1]))
+                cv2.circle(self.oldframe, (coord[0], coord[1]), 2, (0, 0, 255), 2)
+
+            for c in c2:
+                coord = cv2.boundingRect(c) 
+                c2_coords.append((coord[0], coord[1]))
+                cv2.circle(self.newframe, (coord[0], coord[1]), 2, (0, 0, 255), 2)
+
+
+            i = 0
+            final_coords = []
+            for i in range(len(c1_coords)):
+                found_close = False
+                for j in range(len(c2_coords)):
+                    dist_x = abs(c1_coords[i][0] - c2_coords[j][0])
+                    dist_y = abs(c1_coords[i][1] - c2_coords[j][1])
+
+                    if dist_x < 4.0 and dist_y < 4.0:
+                        found_close = True
+                        i += 1
+
+                if not found_close:
+                    final_coords.append(c1_coords[i])
+                    
+            cv2.imshow("old", self.oldframe)
+            cv2.imshow("new", self.newframe)
+            print(final_coords)
                         
     def inside_chessboard(self, x, y):
         return x > self.chessboard_coords[0] and x < self.chessboard_coords[1] and y > self.chessboard_coords[2] and y < self.chessboard_coords[3]
@@ -147,7 +133,6 @@ class Vision:
     def UpdateOldFrame(self):
         ret, frame = self.cap.read()
         self.oldframe = frame
-        cv2.imwrite('img1.png', frame)
         self.set_chessboard_coords()
 
     def startVision(self):
@@ -162,7 +147,6 @@ class Vision:
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.newframe = frame
-                cv2.imwrite('img2.png', frame)
                 self.checkForUpdates()
                 
 

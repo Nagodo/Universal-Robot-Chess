@@ -5,7 +5,7 @@ BOARDSETUP = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 class Board:
     def __init__(self):
         self.board = [[[] for i in range(8)] for j in range(8)]
-        self.playercolor = "b"
+        self.playercolor = "w"
         self.turn = "w"
         self.white_castle = [True, True]
         self.black_castle = [True, True]
