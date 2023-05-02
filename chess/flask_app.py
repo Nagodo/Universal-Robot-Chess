@@ -1,7 +1,4 @@
-from flask import Flask, render_template, request
-import time
-import json
-
+from flask import Flask, render_template
 
 class WebInterface:
     def __init__(self):    

@@ -1,10 +1,6 @@
 import cv2
-from threading import Thread
 from skimage.metrics import structural_similarity
-import pyautogui
 import numpy as np
-import time
-import random
 from CONFIG import *
 
 class Vision:
@@ -25,7 +21,6 @@ class Vision:
                 self.square_coords[sqr] = (x*56+VISION_CHESSBOARD[0], y*56+VISION_CHESSBOARD[1])
 
     def c_to_sqr(self, x, y):
-        #It goes 8 to 1, h to a
         return chr((97 + 7) - y) + str(8-x)
 
     def checkForUpdates(self):
@@ -51,14 +46,12 @@ class Vision:
             contours = contours[0] if len(contours) == 2 else contours[1]
 
             mask = np.zeros(before.shape, dtype='uint8')
-            filled_after = after.copy()
+
             contours = sorted(contours, key=cv2.contourArea, reverse=True)
             cv2.drawContours(mask, contours, -1, 255, -1)
             move_amount = 0
             out = 0, [(0,0), (0,0), (0,0), (0,0)]
             if len(contours) > 1:
-               
-                #if cv2.contourArea(contours[0])*0.2 < cv2.contourArea(contours[1]) * 1.5 < cv2.contourArea(contours[0])*1.8 and cv2.contourArea(contours[0]) > 150:
                 x,y,w,h = cv2.boundingRect(contours[0])
                 x_2,y_2,w_2,h_2 = cv2.boundingRect(contours[1])
                 cx_1 = x + w//2
@@ -69,38 +62,7 @@ class Vision:
                 move_amount = 2
                
 
-                #if len(contours) > 3 and cv2.contourArea(contours[2])*0.3 < cv2.contourArea(contours[3]) * 1.5 < cv2.contourArea(contours[2])*1.8 and cv2.contourArea(contours[2]) > 150:
-                        
-                    #     x,y,w,h = cv2.boundingRect(contours[2])
-                    #     x_2,y_2,w_2,h_2 = cv2.boundingRect(contours[3])
-                    #     cx_3 = x + w//2
-                    #     cy_3 = y + h//2
-                    #     cx_4 = x_2 + w_2//2
-                    #     cy_4 = y_2 + h_2//2
-                    #     out =  4, [(cx_1, cy_1), (cx_2, cy_2), (cx_3, cy_3), (cx_4, cy_4)]
-                    #     move_amount = 4
-
-                # if cv2.contourArea(contours[0]) > 300 and cv2.contourArea(contours[1]) < 150:
-                #     x,y,w,h = cv2.boundingRect(contours[0])
-                #     cx = x + w//2
-                #     cy = y + h//2
-                #     out =  1, [(cx, cy), (0,0), (0,0), (0,0)]
-                #     move_amount = 1
-
-                # else:
-                #     out =  0, [(0,0), (0,0), (0,0), (0,0)]
-
-            # for c in contours:
-            #     area = cv2.contourArea(c)
-            #     if area > 300:
-            #         x,y,w,h = cv2.boundingRect(c)
-            #         cv2.rectangle(before, (x, y), (x + w, y + h), (36,255,12), 2)
-            #         cv2.rectangle(after, (x, y), (x + w, y + h), (36,255,12), 2)
-            #         cv2.rectangle(diff_box, (x, y), (x + w, y + h), (36,255,12), 2)
-            #         cv2.drawContours(mask, [c], 0, (100,100,100), -1)
-            #         cv2.drawContours(filled_after, [c], 0, (0,255,0), -1)
-
-
+                
             move_coords = []
             for i in range (len(out[1])):
                 move_coords.append(out[1][i])
@@ -119,7 +81,6 @@ class Vision:
     
 
     def GetSquareFromCoords(self, x_c, y_c):
-        #Loop through dict
         closest = 1000
         c_key = ""
         for key, value in self.square_coords.items():
@@ -133,12 +94,7 @@ class Vision:
                 c_key = key
         return c_key
    
-    def index_to_notation(self, x, y):
-        y = 7 - y
-        return chr(x + 97) + str(y + 1)
-
-    
-            
+        
     def UpdateOldFrame(self):
         ret, frame = self.cap.read()
         self.oldframe = frame
@@ -148,8 +104,7 @@ class Vision:
             ret, frame = self.cap.read()
             if self.showVideo:
                 cv2.imshow('frame', frame)
-                
-           
+ 
             if self.oldframe is not None:
                 cv2.imshow('oldframe', self.oldframe)
             else:
@@ -158,14 +113,7 @@ class Vision:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.newframe = frame
                 self.checkForUpdates()
-                
 
-
-            #If k is pressed, update the old frame
-            if cv2.waitKey(1) & 0xFF == ord('k'):
-                #SAVE img
-                cv2.imwrite('img.png', frame)
-                
 
 
     

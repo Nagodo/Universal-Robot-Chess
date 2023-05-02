@@ -74,7 +74,6 @@ class Board:
                         
 
     def LoadFEN(self, fen):
-        #Loop through each character in the FEN string
         x = 0
         y = 7
         for i in range(len(fen)):
