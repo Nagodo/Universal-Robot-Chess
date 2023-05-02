@@ -120,7 +120,6 @@ while True:
                 sqr02 = engine.get_on_square(move02)
        
                 if sqr01 and sqr02:
-                    #Split enum string the enum is PIECE.COLOR_PIECE. get the color
                     color01 = str(sqr01).split(".")[1]
                     color01 = color01.split("_")[0]
                     
