@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
 from skimage.metrics import structural_similarity
-
+from CONFIG import *
 
 img1 = cv2.imread('img1.png')
 img2 = cv2.imread('img3.png')
 
+
+
+cv2.imshow('img1', img1)
 #Greyscale
 before = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 after = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
@@ -41,6 +44,8 @@ if len(contours) > 1:
         cx_2 = x_2 + w_2//2
         cy_2 = y_2 + h_2//2
         out =  2, [(cx_1, cy_1), (cx_2, cy_2), (0,0), (0,0)]
+        print("2")
+
         if len(contours) > 3 and cv2.contourArea(contours[2])*0.3 < cv2.contourArea(contours[3]) < cv2.contourArea(contours[2])*1.8 and cv2.contourArea(contours[2]) > 300:
             x,y,w,h = cv2.boundingRect(contours[2])
             x_2,y_2,w_2,h_2 = cv2.boundingRect(contours[3])
@@ -49,30 +54,35 @@ if len(contours) > 1:
             cx_4 = x_2 + w_2//2
             cy_4 = y_2 + h_2//2
             out =  4, [(cx_1, cy_1), (cx_2, cy_2), (cx_3, cy_3), (cx_4, cy_4)]
-    #one piece
+            print("4")
+
     elif cv2.contourArea(contours[0]) > 300 and cv2.contourArea(contours[1]) < 300:
         x,y,w,h = cv2.boundingRect(contours[0])
         cx = x + w//2
         cy = y + h//2
         out =  1, [(cx, cy), (0,0), (0,0), (0,0)]
-    # four pieces
+        print("1")
+
     else:
         out =  0, [(0,0), (0,0), (0,0), (0,0)]
 
-for c in contours:
-    area = cv2.contourArea(c)
-    if area > 300:
-        x,y,w,h = cv2.boundingRect(c)
-        cv2.rectangle(before, (x, y), (x + w, y + h), (36,255,12), 2)
-        cv2.rectangle(after, (x, y), (x + w, y + h), (36,255,12), 2)
-        cv2.rectangle(diff_box, (x, y), (x + w, y + h), (36,255,12), 2)
-        cv2.drawContours(mask, [c], 0, (100,100,100), -1)
-        cv2.drawContours(filled_after, [c], 0, (0,255,0), -1)
+# for c in contours:
+#     area = cv2.contourArea(c)
+#     if area > 300:
+#         x,y,w,h = cv2.boundingRect(c)
+#         cv2.rectangle(before, (x, y), (x + w, y + h), (36,255,12), 2)
+#         cv2.rectangle(after, (x, y), (x + w, y + h), (36,255,12), 2)
+#         cv2.rectangle(diff_box, (x, y), (x + w, y + h), (36,255,12), 2)
+#         cv2.drawContours(mask, [c], 0, (100,100,100), -1)
+#         cv2.drawContours(filled_after, [c], 0, (0,255,0), -1)
 
 
+move_coords = []
 for i in range (len(out[1])):
+    move_coords.append(out[1][i])
     cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
 
+print(move_coords)
 cv2.imshow('before', mask)
 
 cv2.waitKey(0)

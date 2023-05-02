@@ -20,10 +20,14 @@ class Engine:
     def get_best_move(self):
         return self.engine.get_best_move()
     
-    def get_on_square(self, square):
-        return self.engine.get_what_is_on_square(square)
-   
     def get_evaluation(self, fen):
         return self.engine.get_evaluation(fen)
     
-   
+engine = Engine()
+
+FEN = "rnbqk2r/ppp1bppp/5n2/3p4/3P4/3B1N2/PPP1QPPP/RNB1K2R w KQkq - 5 7"
+
+engine.set_fen(FEN)
+
+move = engine.get_best_move()
+print(move)

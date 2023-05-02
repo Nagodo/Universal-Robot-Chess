@@ -14,126 +14,134 @@ class Vision:
         self.oldframe = None
         self.newframe = None
 
+        self.newPlayerMove = False
+        self.playerMove = ""
+        self.playerMoveType = 0
+
+        self.square_coords = {}
+        for x in range(8):
+            for y in range(8):
+                sqr = self.c_to_sqr(x, y)
+                self.square_coords[sqr] = (x*56+VISION_CHESSBOARD[0], y*56+VISION_CHESSBOARD[1])
+
+    def c_to_sqr(self, x, y):
+        #It goes 8 to 1, h to a
+        return chr((97 + 7) - y) + str(8-x)
 
     def checkForUpdates(self):
         print("Checking for updates")
+
         if self.oldframe is not None:
-                    
-            def find_green_areas(img):
-                hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-                lower_green = np.array([50, 50, 50])
-                upper_green = np.array([80, 255, 255])
-                mask = cv2.inRange(hsv, lower_green, upper_green)
-                res = cv2.bitwise_and(img, img, mask=mask)
-                return res
+            print("Old frame exists")
+            before = cv2.cvtColor(self.oldframe, cv2.COLOR_BGR2GRAY)
+            after = cv2.cvtColor(self.newframe, cv2.COLOR_BGR2GRAY)
+            (score, diff) = structural_similarity(before, after, full=True)
+            print("Image Similarity: {:.4f}%".format(score * 100))
 
+            diff = (diff * 255).astype("uint8")
+            diff_box = cv2.merge([diff, diff, diff])
+           
+            cv2.imshow('diff', diff_box)
 
-            green1 = find_green_areas(self.oldframe)
-            green2 = find_green_areas(self.newframe)
+            thress = 40
+            thresh = cv2.threshold(diff, thress, 255, cv2.THRESH_BINARY_INV)[1]
+            cv2.imshow('thresh', thresh)
 
-            cv2.imshow("green1", green1)
-            cv2.imshow("green2", green2)
-            
-            def get_contours(img):
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)[1]
-                contours, __ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                return contours
+            contours = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            contours = contours[0] if len(contours) == 2 else contours[1]
 
+            mask = np.zeros(before.shape, dtype='uint8')
+            filled_after = after.copy()
+            contours = sorted(contours, key=cv2.contourArea, reverse=True)
+            cv2.drawContours(mask, contours, -1, 255, -1)
+            move_amount = 0
+            out = 0, [(0,0), (0,0), (0,0), (0,0)]
+            if len(contours) > 1:
+               
+                #if cv2.contourArea(contours[0])*0.2 < cv2.contourArea(contours[1]) * 1.5 < cv2.contourArea(contours[0])*1.8 and cv2.contourArea(contours[0]) > 150:
+                x,y,w,h = cv2.boundingRect(contours[0])
+                x_2,y_2,w_2,h_2 = cv2.boundingRect(contours[1])
+                cx_1 = x + w//2
+                cy_1 = y + h//2
+                cx_2 = x_2 + w_2//2
+                cy_2 = y_2 + h_2//2
+                out =  2, [(cx_1, cy_1), (cx_2, cy_2), (0,0), (0,0)]
+                move_amount = 2
+               
 
-            def get_valid_contours(contours):
-                valid_contours = []
-                for c in contours:
-                    area = cv2.contourArea(c)
-                    if area > 8 and 100 > area:
-                        valid_contours.append(c)
-                return valid_contours
-
-            c1 = get_contours(green1)
-            c2 = get_contours(green2)
-
-            c1 = get_valid_contours(c1)
-            c2 = get_valid_contours(c2)
-
-            cv2.drawContours(self.oldframe, c1, -1, (0, 255, 0), 2)
-            cv2.drawContours(self.newframe, c2, -1, (0, 255, 0), 2)
-
-            c1_coords = []
-            c2_coords = []
-            for c in c1:
-                coord = cv2.boundingRect(c) 
-                c1_coords.append((coord[0], coord[1]))
-                cv2.circle(self.oldframe, (coord[0], coord[1]), 2, (0, 0, 255), 2)
-
-            for c in c2:
-                coord = cv2.boundingRect(c) 
-                c2_coords.append((coord[0], coord[1]))
-                cv2.circle(self.newframe, (coord[0], coord[1]), 2, (0, 0, 255), 2)
-
-
-            i = 0
-            final_coords = []
-            for i in range(len(c1_coords)):
-                found_close = False
-                for j in range(len(c2_coords)):
-                    dist_x = abs(c1_coords[i][0] - c2_coords[j][0])
-                    dist_y = abs(c1_coords[i][1] - c2_coords[j][1])
-
-                    if dist_x < 4.0 and dist_y < 4.0:
-                        found_close = True
-                        i += 1
-
-                if not found_close:
-                    final_coords.append(c1_coords[i])
-                    
-            cv2.imshow("old", self.oldframe)
-            cv2.imshow("new", self.newframe)
-            print(final_coords)
+                #if len(contours) > 3 and cv2.contourArea(contours[2])*0.3 < cv2.contourArea(contours[3]) * 1.5 < cv2.contourArea(contours[2])*1.8 and cv2.contourArea(contours[2]) > 150:
                         
-    def inside_chessboard(self, x, y):
-        return x > self.chessboard_coords[0] and x < self.chessboard_coords[1] and y > self.chessboard_coords[2] and y < self.chessboard_coords[3]
+                    #     x,y,w,h = cv2.boundingRect(contours[2])
+                    #     x_2,y_2,w_2,h_2 = cv2.boundingRect(contours[3])
+                    #     cx_3 = x + w//2
+                    #     cy_3 = y + h//2
+                    #     cx_4 = x_2 + w_2//2
+                    #     cy_4 = y_2 + h_2//2
+                    #     out =  4, [(cx_1, cy_1), (cx_2, cy_2), (cx_3, cy_3), (cx_4, cy_4)]
+                    #     move_amount = 4
+
+                # if cv2.contourArea(contours[0]) > 300 and cv2.contourArea(contours[1]) < 150:
+                #     x,y,w,h = cv2.boundingRect(contours[0])
+                #     cx = x + w//2
+                #     cy = y + h//2
+                #     out =  1, [(cx, cy), (0,0), (0,0), (0,0)]
+                #     move_amount = 1
+
+                # else:
+                #     out =  0, [(0,0), (0,0), (0,0), (0,0)]
+
+            # for c in contours:
+            #     area = cv2.contourArea(c)
+            #     if area > 300:
+            #         x,y,w,h = cv2.boundingRect(c)
+            #         cv2.rectangle(before, (x, y), (x + w, y + h), (36,255,12), 2)
+            #         cv2.rectangle(after, (x, y), (x + w, y + h), (36,255,12), 2)
+            #         cv2.rectangle(diff_box, (x, y), (x + w, y + h), (36,255,12), 2)
+            #         cv2.drawContours(mask, [c], 0, (100,100,100), -1)
+            #         cv2.drawContours(filled_after, [c], 0, (0,255,0), -1)
 
 
-    def get_square_color(self, frame, s_x, s_y, s_x0, s_y0):
-        s_x += VISION_SQUARE_OFFSET
-        s_y += VISION_SQUARE_OFFSET 
-        s_x0 -= VISION_SQUARE_OFFSET
-        s_y0 -= VISION_SQUARE_OFFSET
-        square_color = (0, 0, 0)
-        red = []
-        green = []
-        blue = []
+            move_coords = []
+            for i in range (len(out[1])):
+                move_coords.append(out[1][i])
+                cv2.rectangle(mask, (out[1][i][0]-2, out[1][i][1]-2), (out[1][i][0]+2, out[1][i][1]+2), (255,255,255), 2)
 
-        for x in range(int(s_x), int(s_x0)):
-            for y in range(int(s_y), int(s_y0)):
-                red.append(frame[y][x][0])
-                green.append(frame[y][x][1])
-                blue.append(frame[y][x][2])
-        
-        square_color = (sum(red) / len(red), sum(green) / len(green), sum(blue) / len(blue))
+            if move_amount == 2:
+                move1 = self.GetSquareFromCoords(out[1][0][0], out[1][0][1])
+                move2 = self.GetSquareFromCoords(out[1][1][0], out[1][1][1])
 
-        return square_color
+                self.playerMove = [move1, move2]
+                self.playerMoveType = 2
+                self.newPlayerMove = True
+
+
+            cv2.imshow('before', mask)
     
+
+    def GetSquareFromCoords(self, x_c, y_c):
+        #Loop through dict
+        closest = 1000
+        c_key = ""
+        for key, value in self.square_coords.items():
+            x = value[0]
+            y = value[1]
+
+            dist = abs(x_c - x) + abs(y_c - y)
+           
+            if dist < closest:
+                closest = dist
+                c_key = key
+        return c_key
+   
     def index_to_notation(self, x, y):
         y = 7 - y
         return chr(x + 97) + str(y + 1)
 
-    def GetDifference(self, old_color, new_color):
-        d_r = int(old_color[0]) - int(new_color[0])
-        d_g = int(old_color[1]) - int(new_color[1])
-        d_b = int(old_color[2]) - int(new_color[2])
-
-        
-        sum = abs(d_r) + abs(d_g) + abs(d_b)
-        if sum > VISION_DIFF_THRESHOLD:
-            return True
-        
-        return False
+    
             
     def UpdateOldFrame(self):
         ret, frame = self.cap.read()
         self.oldframe = frame
-        self.set_chessboard_coords()
 
     def startVision(self):
         while True:
@@ -144,6 +152,8 @@ class Vision:
            
             if self.oldframe is not None:
                 cv2.imshow('oldframe', self.oldframe)
+            else:
+                self.UpdateOldFrame()
             
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.newframe = frame

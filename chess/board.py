@@ -1,12 +1,13 @@
 #Chess Board class
-BOARDSETUP = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#BOARDSETUP = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+BOARDSETUP = "r1bqk2r/ppp2pp1/2np1n1p/4p3/2B1P3/P1PP1N2/P4PPP/R1BQ1RK1 b kq - 0 8"
 
 
 class Board:
     def __init__(self):
         self.board = [[[] for i in range(8)] for j in range(8)]
         self.playercolor = "w"
-        self.turn = "w"
+        self.turn = "b"
         self.white_castle = [True, True]
         self.black_castle = [True, True]
 
@@ -24,62 +25,24 @@ class Board:
 
     def Move(self, move):
         #Hvis det er en rokade
-        if move[0] == "O":
-            if move[1] == "O":
-                if self.turn == "w":
-                    self.board[7][4][0] = 0
-                    self.board[7][4][1] = ""
-                    self.board[7][6][0] = 1
-                    self.board[7][6][1] = "K"
-                    self.board[7][7][0] = 0
-                    self.board[7][7][1] = ""
-                    self.board[7][5][0] = 1
-                    self.board[7][5][1] = "R"
-                else:
-                    self.board[0][4][0] = 0
-                    self.board[0][4][1] = ""
-                    self.board[0][6][0] = 2
-                    self.board[0][6][1] = "K"
-                    self.board[0][7][0] = 0
-                    self.board[0][7][1] = ""
-                    self.board[0][5][0] = 2
-                    self.board[0][5][1] = "R"
-            else:
-                if self.turn == "w":
-                    self.board[7][4][0] = 0
-                    self.board[7][4][1] = ""
-                    self.board[7][2][0] = 1
-                    self.board[7][2][1] = "K"
-                    self.board[7][0][0] = 0
-                    self.board[7][0][1] = ""
-                    self.board[7][3][0] = 1
-                    self.board[7][3][1] = "R"
-                else:
-                    self.board[0][4][0] = 0
-                    self.board[0][4][1] = ""
-                    self.board[0][2][0] = 2
-                    self.board[0][2][1] = "K"
-                    self.board[0][0][0] = 0
-                    self.board[0][0][1] = ""
-                    self.board[0][3][0] = 2
-                    self.board[0][3][1] = "R"
+        
+            
+        from_y = self.ConvertToIndex(move[1])
+        from_x = self.ConvertToIndex(move[0])
+        to_y = self.ConvertToIndex(move[3])
+        to_x = self.ConvertToIndex(move[2])
+        print(from_x, from_y, to_x, to_y)
+        #Hvis det er en promotion
+        if len(move) == 5:
+            self.board[to_y][to_x][0] = self.board[from_y][from_x][0]
+            self.board[to_y][to_x][1] = move[4]
+            self.board[from_y][from_x][0] = 0
+            self.board[from_y][from_x][1] = ""
         else:
-            from_y = self.ConvertToIndex(move[1])
-            from_x = self.ConvertToIndex(move[0])
-            to_y = self.ConvertToIndex(move[3])
-            to_x = self.ConvertToIndex(move[2])
-            print(from_x, from_y, to_x, to_y)
-            #Hvis det er en promotion
-            if len(move) == 5:
-                self.board[to_y][to_x][0] = self.board[from_y][from_x][0]
-                self.board[to_y][to_x][1] = move[4]
-                self.board[from_y][from_x][0] = 0
-                self.board[from_y][from_x][1] = ""
-            else:
-                self.board[to_y][to_x][0] = self.board[from_y][from_x][0]
-                self.board[to_y][to_x][1] = self.board[from_y][from_x][1]
-                self.board[from_y][from_x][0] = 0
-                self.board[from_y][from_x][1] = ""
+            self.board[to_y][to_x][0] = self.board[from_y][from_x][0]
+            self.board[to_y][to_x][1] = self.board[from_y][from_x][1]
+            self.board[from_y][from_x][0] = 0
+            self.board[from_y][from_x][1] = ""
 
         self.UpdateBoardImgs()
         self.ChangeTurn()
