@@ -4,8 +4,8 @@ from robot.posistions import *
 import time
 import sys
 
-ROBOT_HOST = '10.130.58.11'
-ROBOT_PORT = 30004
+ROBOT_HOST = ''
+ROBOT_PORT = 0
 
 config_filename = './robot/rtde_config.xml'
 
