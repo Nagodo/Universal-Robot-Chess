@@ -1,4 +1,4 @@
-<h1>Skakrobot med Computer Vision og Stockfish</h1>
+<h1>Skakrobot (eksamensprojekt)</h1>
 
 <h2>Beskrivelse</h2>
 Dette program er designet til at spille skak ved hjælp af computer vision og Stockfish.
